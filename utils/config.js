@@ -7,6 +7,12 @@ const apiURL = {
       : process.env.PRODUCTION_MODE === "live"
       ? process.env.LIVE_URL
       : "",
+    DB:
+    process.env.PRODUCTION_MODE === "loc"
+    ? 'local'
+    : process.env.PRODUCTION_MODE === "dev"
+    ? 'development'
+    : 'local'
 };
 
 module.exports = apiURL;
