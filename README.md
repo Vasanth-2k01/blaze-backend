@@ -1,4 +1,6 @@
-To Step up this project, run the following commands:
+To step up this project, run the following commands:
 
 npm i
-npm run start
+npm run migrate
+npm run seed
+npm run dev
