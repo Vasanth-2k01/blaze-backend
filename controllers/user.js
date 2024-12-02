@@ -65,6 +65,23 @@ module.exports = {
     }
   },
 
+  generateCurrencyConversionImage: async (req, res, next) => {
+    let results = await Model.generateCurrencyConversionImage(req);
+    if (results.success) {
+      res.status(200).send({
+        status: 1,
+        message: results.message,
+        result: results.data,
+      });
+    } else {
+      res.status(400).send({
+        status: 0,
+        message: results.message,
+        result: {},
+      });
+    }
+  },
+
   getCurrencyConversionHistory: async (req, res, next) => {
     var page = parseInt(req.query.page) || 1;
     var limit = parseInt(req.query.limit) || 10;

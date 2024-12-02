@@ -3,6 +3,13 @@ require("dotenv").config();
 const { CustomError } = require("./index");
 const { BaseURL } = require("../utils/config");
 const passport = require("passport");
+const fs = require("fs");
+const htmlPdf = require("html-pdf-node");
+const Handlebars = require("handlebars");
+const puppeteer = require("puppeteer");
+const path = require("path");
+const moment = require("moment");
+const sharp = require("sharp");
 
 module.exports = {
   encryptPWD: async (password) => {
@@ -33,7 +40,7 @@ module.exports = {
     }
   },
 
-  validateBody : (schema) => {
+  validateBody: (schema) => {
     return async (req, res, next) => {
       try {
         const result = await schema.validateAsync(req.body, {
@@ -43,7 +50,7 @@ module.exports = {
         // console.log(result, "result");
         return next();
       } catch (error) {
-        console.log(error , "validateBody err");
+        console.log(error, "validateBody err");
         const message = `${
           error.details && error.details[0]
             ? error.details[0].context.message || error.details[0].message
@@ -62,7 +69,7 @@ module.exports = {
     };
   },
 
-  validateQuery : (schema) => {
+  validateQuery: (schema) => {
     return async (req, res, next) => {
       try {
         const result = await schema.validateAsync(req.query, {
@@ -72,7 +79,7 @@ module.exports = {
         // console.log(result, "result");
         return next();
       } catch (error) {
-        console.log(error , "validateBody err");
+        console.log(error, "validateBody err");
         const message = `${
           error.details && error.details[0]
             ? error.details[0].context.message || error.details[0].message
@@ -91,15 +98,7 @@ module.exports = {
     };
   },
 
-  GetAllList : (
-    body,
-    results,
-    rowcount,
-    page,
-    limit,
-    offsets,
-    link
-  ) => {
+  GetAllList: (body, results, rowcount, page, limit, offsets, link) => {
     try {
       let data = {
         data: results,
@@ -137,20 +136,20 @@ module.exports = {
     }
   },
 
-  authenticateJwt : (req, res, next) => {
+  authenticateJwt: (req, res, next) => {
     if (req.headers.authorization)
       req.headers.authorization = req.headers.authorization
         .replace("Bearer", "")
         .trim();
-    console.log("authenticateJwt",req.headers.authorization);
+    console.log("authenticateJwt", req.headers.authorization);
     passport.authenticate("jwtProfile", function (err, payload, info) {
       if (err) {
         console.log("err", err);
         return res.status(401).send(err);
       } //console.log(" err", err);
       else if (!payload) {
-        console.log(payload,"payload");
-        
+        console.log(payload, "payload");
+
         return res
           .status(401)
           .send({ status: 0, message: "authentication failed", result: {} });
@@ -161,13 +160,12 @@ module.exports = {
       }
     })(req, res, next);
   },
-  authenticateUser : (req, res, next) => {
+  authenticateUser: (req, res, next) => {
     passport.authenticate("local", function (err, payload, info) {
       if (err) {
         console.log("err", err);
         return res.status(401).send(err);
-      } 
-      else if (!payload) {
+      } else if (!payload) {
         return res
           .status(401)
           .send({ status: 0, message: "authentication failed", result: {} });
@@ -178,5 +176,113 @@ module.exports = {
         return;
       }
     })(req, res, next);
-  }
+  },
+
+  generatePdf: async (pdfData, generateImage = false) => {
+    try {
+      console.log(pdfData, "pdfData");
+      let templatePath = __dirname + "/currencyTemplate.html";
+
+      const templateHtml = fs.readFileSync(templatePath, "utf8");
+      const template = Handlebars.compile(templateHtml);
+
+      Handlebars.registerHelper("incrementIndex", function (value) {
+        return value + 1;
+      });
+
+      const html = template(pdfData);
+
+      const options = {
+        border: "10mm",
+      };
+
+      if (generateImage) {
+        return html;
+      } else {
+        const pdfBuffer = await htmlPdf.generatePdf({ content: html }, options);
+
+        console.log(pdfBuffer, "pdfBuffer");
+        if (pdfBuffer) {
+          return {
+            success: true,
+            message: "PDF generated successfully!",
+            data: pdfBuffer,
+          };
+        } else {
+          return {
+            success: false,
+            message: "PDF generated failed!",
+            data: {},
+          };
+        }
+      }
+    } catch (error) {
+      console.log(error);
+      throw new CustomError(error, 400, {});
+    }
+  },
+
+  generateImage: async (imageData) => {
+    try {
+      const imageName = `${imageData.user_id}-${imageData.source_currency}-${
+        imageData.target_currency
+      }-${moment(imageData.conversion_time, "DD-MM-YYYY HH:mm:ss:SSS").format(
+        "YYYYMMDDHHmmss"
+      )}`;
+
+      let html = await module.exports.generatePdf(imageData, true);
+
+      if (!html) {
+        return {
+          success: false,
+          message: "Image generated failed!",
+          data: {},
+        };
+      }
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      await page.setContent(html);
+
+      const outputPath = path.join(
+        "./uploads/currency-conversion-image",
+        `${imageName}.png`
+      );
+      const imageBuffer = await page.screenshot({
+        path: outputPath,
+        fullPage: true,
+      });
+
+      const grayScaleOutputPath = path.join(
+        "./uploads/currency-conversion-grayscale-image",
+        `${imageName}.png`
+      );
+
+      await browser.close();
+
+      if (!imageBuffer) {
+        return null;
+      }
+
+      let grayScaleBuffer =await sharp(outputPath)
+      .grayscale()
+        .toBuffer();
+        
+      let grayScaleFile = await sharp(outputPath)
+        .grayscale()
+        .toFile(grayScaleOutputPath);
+
+      if (!grayScaleFile) {
+        return null;
+      }
+
+      return {
+        imageName: imageName,
+        imageBuffer: imageBuffer,
+        grayScaleBuffer: await grayScaleBuffer,
+      };
+    } catch (error) {
+      console.log(error);
+      throw new CustomError(error, 400, {});
+    }
+  },
 };

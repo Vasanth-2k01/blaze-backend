@@ -10,6 +10,8 @@ exports.up = function (knex) {
       table.double("amount", 10, 3).notNullable();
       table.double("converted_amount", 10, 3).notNullable();
       table.string("conversion_time", 255).notNullable().defaultTo(knex.fn.now());;
+      table.string("image", 50).nullable().defaultTo(null);
+      table.string("gray_scale_image", 50).nullable().defaultTo(null);
       table.timestamp("created_at").defaultTo(knex.fn.now());
       table.timestamp("updated_at")
       table.timestamp("deleted_at").nullable();

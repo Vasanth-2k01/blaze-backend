@@ -28,8 +28,15 @@ routes.get(
 routes.get(
   "/generateCurrencyConversionPdf",
   authenticateJwt,
-  validateQuery(schemas.convertCurrencySchema),
+  validateQuery(schemas.downloadSchema),
   controller.generateCurrencyConversionPdf
+);
+
+routes.get(
+  "/generateCurrencyConversionImage",
+  authenticateJwt,
+  validateQuery(schemas.downloadSchema),
+  controller.generateCurrencyConversionImage
 );
 
 routes.get(
