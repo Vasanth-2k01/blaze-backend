@@ -248,9 +248,10 @@ module.exports = {
           "--no-zygote",
         ],
         executablePath:
-          process.env.PRODUCTION_MODE == "loc"
-            ? puppeteer.executablePath()
-            : process.env.PUPPETEER_EXECUTABLE_PATH,
+          // process.env.PRODUCTION_MODE == "loc"
+            // ?
+             puppeteer.executablePath()
+            // : process.env.PUPPETEER_EXECUTABLE_PATH,
       });
 
       const page = await browser.newPage();
