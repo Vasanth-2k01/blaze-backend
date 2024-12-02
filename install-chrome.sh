@@ -21,4 +21,6 @@ source ~/.bashrc
 cd ~
 rm -rf ~/chrome-install
 
+which google-chrome
+
 echo "Google Chrome installed in ~/local/bin"
