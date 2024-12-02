@@ -6,7 +6,7 @@ const passport = require("passport");
 const fs = require("fs");
 const htmlPdf = require("html-pdf-node");
 const Handlebars = require("handlebars");
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-core");
 const path = require("path");
 const moment = require("moment");
 const sharp = require("sharp");
@@ -241,7 +241,7 @@ module.exports = {
       }
       // const browser = await puppeteer.launch();
       const browser = await puppeteer.launch({
-        // executablePath: '/opt/render/local/bin/google-chrome', 
+        executablePath: '/opt/render/local/bin/google-chrome', 
         args: ['--no-sandbox', '--disable-setuid-sandbox'],  
       });
       const page = await browser.newPage();
