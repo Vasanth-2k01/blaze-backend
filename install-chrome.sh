@@ -10,11 +10,11 @@ ar x google-chrome-stable_current_amd64.deb
 tar -xf data.tar.xz
 
 # Move binaries to local bin
-mkdir -p ~/local/bin
-cp -r ./opt/google/chrome/* ~/local/bin/
+mkdir -p /opt/render/local/bin
+cp -r ./opt/google/chrome/* /opt/render/local/bin/
 
 # Add Chrome to PATH
-echo 'export PATH=$PATH:~/local/bin' >> ~/.bashrc
+echo 'export PATH=$PATH:/opt/render/local/bin' >> ~/.bashrc
 source ~/.bashrc
 
 # Cleanup
@@ -23,4 +23,6 @@ rm -rf ~/chrome-install
 
 which google-chrome
 
-echo "Google Chrome installed in ~/local/bin"
+echo $PATH
+/opt/render/local/bin/google-chrome --version
+echo "Google Chrome installed in /opt/render/local/bin"
