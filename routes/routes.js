@@ -15,7 +15,7 @@ routes.post(
 routes.get(
   "/getProfile",
   authenticateJwt,
-  controller.convertCurrency
+  controller.getProfile
 );
 
 routes.get(
