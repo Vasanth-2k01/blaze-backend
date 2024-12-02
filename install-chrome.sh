@@ -1,5 +1,24 @@
 #!/bin/bash
 
-apt-get install -y google-chrome-stable
+# Install Chrome locally
+mkdir -p ~/chrome-install
+cd ~/chrome-install
 
-google-chrome --version
+# Download and install Chrome
+curl -O https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+ar x google-chrome-stable_current_amd64.deb
+tar -xf data.tar.xz
+
+# Move binaries to local bin
+mkdir -p ~/local/bin
+cp -r ./opt/google/chrome/* ~/local/bin/
+
+# Add Chrome to PATH
+echo 'export PATH=$PATH:~/local/bin' >> ~/.bashrc
+source ~/.bashrc
+
+# Cleanup
+cd ~
+rm -rf ~/chrome-install
+
+echo "Google Chrome installed in ~/local/bin"
