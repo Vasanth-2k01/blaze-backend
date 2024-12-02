@@ -240,7 +240,18 @@ module.exports = {
         };
       }
 
-      const browser = await puppeteer.launch();
+      const browser = await puppeteer.launch({
+        args: [
+          "--disable-setuid-sandbox",
+          "--no-sandbox",
+          "--single-process",
+          "--no-zygote",
+        ],
+        executablePath:
+          process.env.PRODUCTION_MODE == "loc"
+            ? puppeteer.executablePath()
+            : process.env.PUPPETEER_EXECUTABLE_PATH,
+      });
 
       const page = await browser.newPage();
       await page.setContent(html);
