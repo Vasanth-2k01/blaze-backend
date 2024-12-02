@@ -1,5 +1,7 @@
 FROM ghcr.io/puppeteer/puppeteer:23.9.0
 
+USER root
+
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
     PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 
