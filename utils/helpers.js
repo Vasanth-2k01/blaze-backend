@@ -10,6 +10,7 @@ const puppeteer = require("puppeteer-core");
 const path = require("path");
 const moment = require("moment");
 const sharp = require("sharp");
+const chromium = require("chrome-aws-lambda");
 
 module.exports = {
   encryptPWD: async (password) => {
@@ -239,11 +240,18 @@ module.exports = {
           data: {},
         };
       }
-      // const browser = await puppeteer.launch();
-      const browser = await puppeteer.launch({
-        executablePath: '/opt/render/local/bin/google-chrome', 
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],  
-      });
+
+      var browser;
+      if (process.env.PRODUCTION_MODE == "loc") {
+        browser = await puppeteer.launch();
+      } else {
+        browser = await chromium.puppeteer.launch({
+          args: chromium.args,
+          executablePath: await chromium.executablePath,
+          headless: chromium.headless,
+        });
+      }
+
       const page = await browser.newPage();
       await page.setContent(html);
 
@@ -267,10 +275,8 @@ module.exports = {
         return null;
       }
 
-      let grayScaleBuffer =await sharp(outputPath)
-      .grayscale()
-        .toBuffer();
-        
+      let grayScaleBuffer = await sharp(outputPath).grayscale().toBuffer();
+
       let grayScaleFile = await sharp(outputPath)
         .grayscale()
         .toFile(grayScaleOutputPath);
