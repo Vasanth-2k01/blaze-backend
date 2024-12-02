@@ -6,11 +6,10 @@ const passport = require("passport");
 const fs = require("fs");
 const htmlPdf = require("html-pdf-node");
 const Handlebars = require("handlebars");
-const puppeteer = require("puppeteer-core");
+const puppeteer = require("puppeteer");
 const path = require("path");
 const moment = require("moment");
 const sharp = require("sharp");
-const chromium = require("chrome-aws-lambda");
 
 module.exports = {
   encryptPWD: async (password) => {
@@ -241,16 +240,7 @@ module.exports = {
         };
       }
 
-      var browser;
-      if (process.env.PRODUCTION_MODE == "loc") {
-        browser = await puppeteer.launch();
-      } else {
-        browser = await chromium.puppeteer.launch({
-          args: chromium.args,
-          executablePath: await chromium.executablePath,
-          headless: chromium.headless,
-        });
-      }
+      const browser = await puppeteer.launch();
 
       const page = await browser.newPage();
       await page.setContent(html);
