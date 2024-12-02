@@ -241,7 +241,7 @@ module.exports = {
       }
       // const browser = await puppeteer.launch();
       const browser = await puppeteer.launch({
-        executablePath: '/opt/render/local/bin/google-chrome', 
+        // executablePath: '/opt/render/local/bin/google-chrome', 
         args: ['--no-sandbox', '--disable-setuid-sandbox'],  
       });
       const page = await browser.newPage();
