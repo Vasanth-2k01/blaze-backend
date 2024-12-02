@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "chmod +x ./install-chrome.sh && ./install-chrome.sh && nodemon server.js",
+    "dev": "nodemon server.js",
     "migrate": "knex migrate:latest",
     "seed": "knex seed:run"
   },
